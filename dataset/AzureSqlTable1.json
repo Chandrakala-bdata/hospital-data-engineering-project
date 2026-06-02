@@ -5,6 +5,11 @@
 			"referenceName": "AzureSqlDatabase1",
 			"type": "LinkedServiceReference"
 		},
+		"parameters": {
+			"table_name": {
+				"type": "string"
+			}
+		},
 		"annotations": [],
 		"type": "AzureSqlTable",
 		"schema": [
@@ -50,8 +55,11 @@
 			}
 		],
 		"typeProperties": {
-			"schema": "dbo",
-			"table": "departments"
+			"schema": {
+				"value": "dbo",
+				"type": "Expression"
+			},
+			"table": "@dataset().table_name"
 		}
 	}
 }
