@@ -65,7 +65,10 @@
 							"typeProperties": {
 								"source": {
 									"type": "AzureSqlSource",
-									"sqlReaderQuery": "@concat(\n'SELECT * FROM dbo.',\nitem().source_table,\n' WHERE ',\nitem().watermark_column,\n' > ''',\nitem().last_watermark_value,\n''''\n)",
+									"sqlReaderQuery": {
+										"value": "@concat(\n'SELECT * FROM dbo.',\nitem().source_table,\n' WHERE ',\nitem().watermark_column,\n' > ''',\nitem().last_watermark_value,\n''''\n)",
+										"type": "Expression"
+									},
 									"queryTimeout": "02:00:00",
 									"partitionOption": "None"
 								},
@@ -138,11 +141,17 @@
 								"storedProcedureName": "usp_UpdateWatermark",
 								"storedProcedureParameters": {
 									"NewWatermark": {
-										"value": "latest watermark value",
-										"type": "DateTime"
+										"value": {
+											"value": "@activity('Lookup2').output.firstRow.MaxWatermark\n",
+											"type": "Expression"
+										},
+										"type": "String"
 									},
 									"SourceTable": {
-										"value": "@item().source_table",
+										"value": {
+											"value": "@item().source_table",
+											"type": "Expression"
+										},
 										"type": "String"
 									}
 								}
@@ -170,7 +179,23 @@
 								"secureOutput": false,
 								"secureInput": false
 							},
-							"userProperties": []
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzureSqlSource",
+									"sqlReaderQuery": "@concat(\n'SELECT MAX(',\nitem().watermark_column,\n') AS MaxWatermark FROM dbo.',\nitem().source_table\n)",
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"dataset": {
+									"referenceName": "AzureSqlTable1",
+									"type": "DatasetReference",
+									"parameters": {
+										"table_name": "@item().source_table"
+									}
+								},
+								"firstRowOnly": true
+							}
 						}
 					]
 				}
